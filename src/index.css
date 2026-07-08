@@ -1,0 +1,223 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #0c7a4d;
+  --primary-dark: #0a5c3b;
+  --accent: #f59e0b;
+  --accent-dark: #d97706;
+  --bg: #fffdf8;
+  --card: #ffffff;
+  --text: #22302a;
+  --muted: #5f6f68;
+  --border: #e5e0d5;
+  --success: #10b981;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Navbar */
+.nav {
+  background: rgba(255, 253, 248, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+.logo .dot {
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white;
+  padding: 4rem 0;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2.2rem; }
+}
+
+/* Tabs */
+.tab {
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(12, 122, 77, 0.3);
+}
+
+/* Product Card */
+.product-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.product-img {
+  aspect-ratio: 4 / 3;
+  background: #f1e9d9;
+  position: relative;
+  overflow: hidden;
+}
+
+.product-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+
+.product-card:hover .product-img img {
+  transform: scale(1.06);
+}
+
+.price {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #c2410c;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: #3a2a00;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* Cart */
+.cart-drawer {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 380px;
+  max-width: 100%;
+  background: white;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.qty-btn:hover {
+  background: #f8f1e3;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 420px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+/* Category badges */
+.badge-drink {
+  background: #ecfdf5;
+  color: var(--primary);
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.badge-ingredient {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
