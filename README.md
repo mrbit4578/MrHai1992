@@ -2,7 +2,7 @@
 
 **Branding:** Cửu Long Mini Mart 24H × Mr. Hải Pha Chế  
 **Repo:** https://github.com/mrbit4578/MrHai1992  
-**Website (GitHub Pages):** https://mrbit4578.github.io/MrHai1992/
+**Website bán hàng (live):** https://mrbit4578.github.io/MrHai1992/
 
 Website bán hàng tĩnh (React + Vite + Tailwind): menu đồ uống, nguyên liệu, giỏ hàng, form đặt hàng, video hướng dẫn.
 
