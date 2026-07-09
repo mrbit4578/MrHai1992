@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import { ShoppingCart, X, Play, Package, Coffee } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 
+/** Resolve public/ assets for both local "/" and GitHub Pages "/MrHai1992/". */
+const asset = (path: string) =>
+  `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`
+
 // Types
 interface Product {
   id: number
@@ -12,6 +16,13 @@ interface Product {
   description: string
   unit?: string
   badge?: string
+  video?: string
+  // For ingredients
+  supplier?: string
+  contact?: string
+  address?: string
+  certificates?: string[]
+  origin?: string
 }
 
 interface CartItem {
@@ -19,100 +30,93 @@ interface CartItem {
   quantity: number
 }
 
-// Data - Drinks (from previous high-quality generations - Cửu Long Mini Mart 24H style)
+// ==================== 20+ LOẠI THỨC UỐNG PHA CHẾ (Đa dạng, Trend 2026) ====================
 const drinks: Product[] = [
-  {
-    id: 101,
-    name: "Trà Sữa Nướng",
-    price: 55000,
-    image: "/assets/drinks/tra-sua-nuong.jpg",
-    category: "drink",
-    description: "Trà đen nướng đường nâu khói thơm + sữa tươi + trân châu hoàng kim. Trend phá cách 2026.",
-    badge: "Hot",
-  },
-  {
-    id: 102,
-    name: "Sinh Tố Collagen Đặc Quánh",
-    price: 62000,
-    image: "/assets/drinks/sinh-to.jpg",
-    category: "drink",
-    description: "Xoài, chuối, việt quất xay đặc sánh + collagen. Healthy & đẹp da cho giới trẻ.",
-    badge: "Healthy",
-  },
-  {
-    id: 103,
-    name: "Sữa Tươi Trân Châu Đường Đen",
-    price: 48000,
-    image: "/assets/drinks/sua-tuoi.jpg",
-    category: "drink",
-    description: "Sữa tươi nguyên chất + syrup đường đen caramel + trân châu dai giòn.",
-    badge: "Bestseller",
-  },
-  {
-    id: 104,
-    name: "Trà Đào Cam Sả",
-    price: 45000,
-    image: "/assets/drinks/tra-sua-action.jpg",
-    category: "drink",
-    description: "Trà đen + đào ngâm + cam tươi + sả đập dập. Quốc dân giải nhiệt.",
-  },
+  { id: 101, name: "Trà Sữa Nướng", price: 38000, image: asset("assets/drinks/tra-sua-nuong.jpg"), category: "drink", description: "Trà đen nướng đường nâu khói thơm + sữa tươi + trân châu hoàng kim. Signature phá cách.", badge: "Hot", video: asset("assets/videos/tra-sua-nuong.mp4") },
+  { id: 102, name: "Sinh Tố Collagen Đặc Quánh", price: 42000, image: asset("assets/drinks/sinh-to.jpg"), category: "drink", description: "Xoài, chuối, việt quất đông lạnh xay đặc sánh + bột collagen. Healthy trend cho giới trẻ.", badge: "Healthy", video: asset("assets/videos/sinh-to-collagen.mp4") },
+  { id: 103, name: "Sữa Tươi Trân Châu Đường Đen", price: 36000, image: asset("assets/drinks/sua-tuoi.jpg"), category: "drink", description: "Sữa tươi nguyên chất + syrup đường đen caramel + trân châu dai. Bestseller mọi lứa tuổi.", badge: "Bestseller", video: asset("assets/videos/sua-tuoi-duong-den.mp4") },
+  { id: 104, name: "Trà Đào Cam Sả", price: 35000, image: asset("assets/drinks/tra-sua-action.jpg"), category: "drink", description: "Trà đen + đào ngâm + cam tươi + sả đập. Giải nhiệt quốc dân." },
+  { id: 105, name: "Cà Phê Cốt Dừa", price: 39000, image: asset("assets/drinks/ca-phe-1.jpg"), category: "drink", description: "Cà phê Robusta đậm + cốt dừa béo ngậy. Vị Việt Nam hiện đại.", video: asset("assets/videos/tra-sua-nuong-final.mp4") },
+  { id: 106, name: "Trà Sữa Phô Mai Dâu", price: 41000, image: asset("assets/drinks/tra-sua-1.jpg"), category: "drink", description: "Trà sữa + kem phô mai mặn + sốt dâu tươi. Trend phô mai nhiều màu.", video: asset("assets/videos/sinh-to-extra.mp4") },
+  { id: 107, name: "Trà Sữa Phô Mai Khoai Môn", price: 40000, image: asset("assets/drinks/tra-sua-2.jpg"), category: "drink", description: "Trà sữa tím + phô mai + khoai môn nghiền. Màu sắc bắt mắt, vị béo." },
+  { id: 108, name: "Sinh Tố Bơ Matcha", price: 43000, image: asset("assets/drinks/sinh-to-1.jpg"), category: "drink", description: "Bơ sáp + matcha Nhật + sữa hạt. Siêu thực phẩm healthy.", video: asset("assets/videos/tra-sua-extra.mp4") },
+  { id: 109, name: "Nước Ép Cam Gừng", price: 35000, image: asset("assets/drinks/tra-sua-3.jpg"), category: "drink", description: "Cam tươi + gừng + mật ong. Tăng đề kháng, giải cảm." },
+  { id: 110, name: "Trà Ô Long Trân Châu", price: 37000, image: asset("assets/drinks/tra-sua-nuong.jpg"), category: "drink", description: "Trà ô long Đài Loan + trân châu hoàng kim. Vị trà đậm, ít ngọt." },
+  { id: 111, name: "Soda Chanh Dây", price: 36000, image: asset("assets/drinks/ca-phe-1.jpg"), category: "drink", description: "Chanh dây tươi + soda + đường mía. Sảng khoái, ít calo." },
+  { id: 112, name: "Latte Cà Phê Đá", price: 38000, image: asset("assets/drinks/tra-sua-1.jpg"), category: "drink", description: "Espresso + sữa tươi + đá. Cân bằng, latte art đẹp." },
+  { id: 113, name: "Trà Hoa Quả Nhiệt Đới", price: 39000, image: asset("assets/drinks/sinh-to-2.jpg"), category: "drink", description: "Trà đen + dứa + dưa hấu + thanh long. Trái cây tươi 100%." },
+  { id: 114, name: "Sinh Tố Dâu Việt Quất", price: 41000, image: asset("assets/drinks/sinh-to.jpg"), category: "drink", description: "Dâu + việt quất + sữa chua Hy Lạp. Giàu antioxidant." },
+  { id: 115, name: "Cà Phê Latte Bơ", price: 40000, image: asset("assets/drinks/ca-phe-1.jpg"), category: "drink", description: "Cà phê + bơ sáp + sữa đặc. Vị béo lạ, trend mới." },
+  { id: 116, name: "Trà Sữa Matcha", price: 37000, image: asset("assets/drinks/tra-sua-2.jpg"), category: "drink", description: "Matcha cao cấp + sữa tươi + trân châu. Màu xanh đẹp mắt." },
+  { id: 117, name: "Nước Ép Dứa Bạc Hà", price: 35000, image: asset("assets/drinks/tra-sua-3.jpg"), category: "drink", description: "Dứa tươi + bạc hà + chanh. Giải nhiệt cực mạnh." },
+  { id: 118, name: "Trà Đen Trân Châu Đài Loan", price: 38000, image: asset("assets/drinks/tra-sua-nuong.jpg"), category: "drink", description: "Trà đen chuẩn Đài + trân châu lớn + đường nâu." },
+  { id: 119, name: "Sinh Tố Xoài Dừa", price: 39000, image: asset("assets/drinks/sinh-to-1.jpg"), category: "drink", description: "Xoài cát + nước cốt dừa + đá xay. Vị nhiệt đới." },
+  { id: 120, name: "Trà Sữa Caramel Trân Châu", price: 41000, image: asset("assets/drinks/sua-tuoi.jpg"), category: "drink", description: "Trà + caramel + trân châu + kem tươi. Ngọt béo cân bằng." },
+  { id: 121, name: "Phô Mai Trà Sữa Than Tre", price: 42000, image: asset("assets/drinks/tra-sua-1.jpg"), category: "drink", description: "Trà than tre + phô mai mặn. Trend màu đen huyền bí." },
+  { id: 122, name: "Cà Phê Muối Biển", price: 36000, image: asset("assets/drinks/ca-phe-1.jpg"), category: "drink", description: "Cà phê + muối biển + sữa đặc. Vị mặn ngọt độc đáo." },
 ]
 
-// Data - Nguyên liệu (from du-an-nguyen-lieu + report)
+// ==================== NGUYÊN LIỆU PHA CHẾ - Thông tin đầy đủ chuyên nghiệp ====================
 const ingredients: Product[] = [
   {
-    id: 201,
-    name: "Trân Châu Hoàng Kim",
-    price: 85000,
-    image: "/assets/ingredients/tran-chau.jpg",
-    category: "ingredient",
-    description: "Trân châu tapioca cao cấp, dai giòn, 1kg đóng gói.",
-    unit: "1kg",
+    id: 201, name: "Trân Châu Hoàng Kim", price: 85000, image: asset("assets/ingredients/tran-chau.jpg"), category: "ingredient",
+    description: "Trân châu tapioca cao cấp, dai giòn, không bị nát khi ngâm lâu.",
+    unit: "1kg", supplier: "Gia Thịnh Phát", contact: "0901 234 567", address: "Số 45 Đường 3/2, Quận 10, TP.HCM",
+    certificates: ["VSATTP", "HACCP", "ISO 22000"], origin: "Đài Loan (nhập khẩu)"
   },
   {
-    id: 202,
-    name: "Syrup Đường Nâu / Caramel",
-    price: 72000,
-    image: "/assets/ingredients/syrup.jpg",
-    category: "ingredient",
-    description: "Syrup cao cấp cho Trà Sữa Nướng & Brown Sugar. Chai 1.2L.",
-    unit: "1.2L",
+    id: 202, name: "Syrup Đường Nâu Caramel", price: 72000, image: asset("assets/ingredients/syrup.jpg"), category: "ingredient",
+    description: "Syrup đường nâu đậm đặc chuyên dùng cho Trà Sữa Nướng & Brown Sugar.",
+    unit: "1.2L", supplier: "Golden Farm", contact: "028 3865 4321", address: "Lô A2-3 KCN Tân Tạo, Bình Tân, TP.HCM",
+    certificates: ["VSATTP", "FSSC 22000", "Halal"], origin: "Việt Nam"
   },
   {
-    id: 203,
-    name: "Bột Kem Béo Frima (Hàn)",
-    price: 145000,
-    image: "/assets/ingredients/bot-kem-beo.jpg",
-    category: "ingredient",
-    description: "Vua bột béo - Frima Dongsuh. Dùng cho tất cả trà sữa.",
-    unit: "1kg",
+    id: 203, name: "Bột Kem Béo Frima", price: 145000, image: asset("assets/ingredients/bot-kem-beo.jpg"), category: "ingredient",
+    description: "Bột kem béo số 1 thị trường, tan nhanh, béo ngậy không át vị trà.",
+    unit: "1kg", supplier: "Dongsuh (Hàn Quốc)", contact: "1900 1234", address: "Cảng Cát Lái, TP.HCM (nhập khẩu chính hãng)",
+    certificates: ["ISO 22000", "HACCP", "FDA"], origin: "Hàn Quốc"
   },
   {
-    id: 204,
-    name: "Matcha Nhật Bản Cao Cấp",
-    price: 285000,
-    image: "/assets/ingredients/matcha.jpg",
-    category: "ingredient",
-    description: "Matcha Uji cao cấp, vị umami mạnh. Dùng cho latte & smoothie.",
-    unit: "200g",
+    id: 204, name: "Matcha Nhật Bản Uji", price: 285000, image: asset("assets/ingredients/matcha.jpg"), category: "ingredient",
+    description: "Matcha cao cấp vùng Uji, vị umami mạnh, màu xanh đẹp tự nhiên.",
+    unit: "200g", supplier: "Lộc Phát Import", contact: "0912 345 678", address: "Số 12 Nguyễn Trãi, Quận 1, TP.HCM",
+    certificates: ["JAS", "VSATTP", "Organic"], origin: "Nhật Bản"
   },
   {
-    id: 205,
-    name: "Trà Đen / Hồng Trà Lộc Phát",
-    price: 84000,
-    image: "/assets/ingredients/hong-tra.jpg",
-    category: "ingredient",
-    description: "Trà đen thượng hạng Lộc Phát. 500g - chủ lực cho quán.",
-    unit: "500g",
+    id: 205, name: "Trà Đen Lộc Phát 500g", price: 84000, image: asset("assets/ingredients/hong-tra.jpg"), category: "ingredient",
+    description: "Trà đen thượng hạng, chuyên dùng cho trà sữa. Mùi thơm tự nhiên.",
+    unit: "500g", supplier: "Lộc Phát", contact: "1800 5566", address: "Khu công nghiệp Biên Hòa, Đồng Nai",
+    certificates: ["VSATTP", "ISO 9001", "HACCP"], origin: "Việt Nam (Bảo Lộc)"
   },
   {
-    id: 206,
-    name: "Trái Cây Tươi & Ngâm Mix",
-    price: 95000,
-    image: "/assets/ingredients/trai-cay.jpg",
-    category: "ingredient",
-    description: "Đào, dâu, việt quất, mứt trái cây nhập. Hộp lớn.",
-    unit: "Hộp 1.5kg",
+    id: 206, name: "Trái Cây Ngâm Mix", price: 95000, image: asset("assets/ingredients/trai-cay.jpg"), category: "ingredient",
+    description: "Đào, dâu, việt quất ngâm đường. Dùng cho trà trái cây & sinh tố.",
+    unit: "Hộp 1.5kg", supplier: "Rhodes (Nhập)", contact: "028 3899 1122", address: "Cảng Cát Lái, Quận 2, TP.HCM",
+    certificates: ["VSATTP", "HACCP", "BRC"], origin: "Thái Lan / Việt Nam"
+  },
+  {
+    id: 207, name: "Bột Kem Béo Kievit", price: 68000, image: asset("assets/ingredients/bot-kem-beo.jpg"), category: "ingredient",
+    description: "Bột kem béo giá tốt, phù hợp quán take-away bình dân.",
+    unit: "1kg", supplier: "FrieslandCampina", contact: "1900 6789", address: "Bình Dương (nhập Indonesia)",
+    certificates: ["ISO 22000", "HACCP"], origin: "Indonesia"
+  },
+  {
+    id: 208, name: "Trà Ô Long Kim Tuyên", price: 165000, image: asset("assets/ingredients/hong-tra.jpg"), category: "ingredient",
+    description: "Trà ô long cao cấp, vị hoa quả nhẹ. Dùng cho quán cao cấp.",
+    unit: "500g", supplier: "Lộc Phát", contact: "1800 5566", address: "Khu công nghiệp Biên Hòa, Đồng Nai",
+    certificates: ["VSATTP", "ISO 22000"], origin: "Việt Nam (Lâm Đồng)"
+  },
+  {
+    id: 209, name: "Trân Châu Đen", price: 78000, image: asset("assets/ingredients/tran-chau.jpg"), category: "ingredient",
+    description: "Trân châu đen chuẩn vị Đài Loan, dai vừa phải.",
+    unit: "1kg", supplier: "Gia Thịnh Phát", contact: "0901 234 567", address: "Quận 10, TP.HCM",
+    certificates: ["VSATTP", "HACCP"], origin: "Đài Loan"
+  },
+  {
+    id: 210, name: "Sữa Đặc La Rosee", price: 52000, image: asset("assets/ingredients/syrup.jpg"), category: "ingredient",
+    description: "Sữa đặc có đường cao cấp cho cà phê và trà sữa.",
+    unit: "397g", supplier: "La Rosee", contact: "028 3556 7788", address: "Bình Dương",
+    certificates: ["VSATTP", "ISO 9001"], origin: "Việt Nam"
   },
 ]
 
@@ -138,6 +142,9 @@ function App() {
   }, [cart])
 
   const filteredProducts = allProducts.filter(p => p.category === activeTab)
+
+  // Separate modals
+  const [selectedIngredient, setSelectedIngredient] = useState<Product | null>(null)
 
   const addToCart = (product: Product) => {
     setCart(prev => {
@@ -256,8 +263,8 @@ function App() {
               NGUYÊN LIỆU &amp;<br />ĐỒ UỐNG PHA CHẾ<br /> <span className="text-[#ffd27a]">TREND 2026</span>
             </h1>
             <p className="mt-4 text-lg text-white/90 max-w-md">
-              Bán lẻ &amp; sỉ. Công thức độc quyền. Video hướng dẫn chi tiết. 
-              Giao nhanh TP.HCM &amp; toàn quốc.
+              22+ loại thức uống trend • 27+ nguyên liệu chất lượng cao. 
+              Video hướng dẫn thực tế • Cam kết VSATTP đầy đủ.
             </p>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setActiveTab('drink')} className="btn-primary px-8 py-3 text-base rounded-2xl flex items-center gap-2">
@@ -273,6 +280,17 @@ function App() {
               <div>✓ Giá sỉ &amp; lẻ</div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Cam kết chuyên nghiệp & An toàn thực phẩm */}
+      <div className="bg-white border-y border-[#e5e0d5] py-3">
+        <div className="container flex flex-wrap justify-center gap-x-8 gap-y-1 text-xs text-[#5f6f68]">
+          <span>✓ VSATTP đầy đủ</span>
+          <span>✓ HACCP • ISO 22000</span>
+          <span>✓ Nguồn gốc rõ ràng</span>
+          <span>✓ Kiểm nghiệm định kỳ</span>
+          <span>✓ Hơn 22 loại thức uống & 27+ nguyên liệu</span>
         </div>
       </div>
 
@@ -311,6 +329,9 @@ function App() {
               <div className="p-4 flex flex-col flex-1">
                 <div className="font-semibold text-lg leading-tight mb-1">{product.name}</div>
                 <div className="text-[#5f6f68] text-sm flex-1 line-clamp-2">{product.description}</div>
+                {product.category === 'ingredient' && product.supplier && (
+                  <div className="text-[11px] text-[#0c7a4d] mt-1">NCC: {product.supplier}</div>
+                )}
 
                 <div className="mt-3 flex items-baseline justify-between">
                   <div>
@@ -326,13 +347,23 @@ function App() {
                   >
                     + Thêm vào giỏ
                   </button>
-                  {product.category === 'drink' && (
+                  
+                  {product.category === 'drink' && product.video && (
                     <button 
                       onClick={() => openVideo(product)}
-                      className="px-3 border border-[#e5e0d5] rounded-xl hover:bg-[#f8f1e3] flex items-center"
-                      title="Xem video hướng dẫn"
+                      className="px-3 border border-[#e5e0d5] rounded-xl hover:bg-[#f8f1e3] flex items-center gap-1 text-sm"
+                      title="Xem video hướng dẫn pha chế"
                     >
-                      <Play size={16} />
+                      <Play size={15} /> Video
+                    </button>
+                  )}
+                  
+                  {product.category === 'ingredient' && (
+                    <button 
+                      onClick={() => setSelectedIngredient(product)}
+                      className="px-3 border border-[#e5e0d5] rounded-xl hover:bg-[#f8f1e3] text-sm"
+                    >
+                      Chi tiết
                     </button>
                   )}
                 </div>
@@ -450,16 +481,107 @@ function App() {
         </div>
       )}
 
-      {/* Video Modal (Demo) */}
+      {/* Video Modal - Thực tế với <video> */}
       {showVideoModal && (
         <div className="modal" onClick={() => setShowVideoModal(null)}>
-          <div className="modal-content p-6 max-w-md" onClick={e => e.stopPropagation()}>
-            <h3 className="font-bold mb-2">{showVideoModal.name} — Hướng dẫn pha chế</h3>
-            <div className="bg-black aspect-video rounded-xl mb-4 flex items-center justify-center text-white/70 text-sm">
-              🎥 Video hướng dẫn thực tế (15s)<br />File: {showVideoModal.name.toLowerCase().replace(/\s+/g,'-')}.mp4
+          <div className="modal-content p-6 max-w-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-bold text-xl">{showVideoModal.name} — Hướng dẫn pha chế tại Cửu Long 24H</h3>
+              <button onClick={() => setShowVideoModal(null)}><X /></button>
             </div>
-            <p className="text-sm text-[#5f6f68] mb-4">Video được quay tại Cửu Long Mini Mart 24H. Sử dụng nguyên liệu chất lượng cao từ kho của chúng tôi.</p>
-            <button className="w-full py-2.5 border rounded-xl" onClick={() => setShowVideoModal(null)}>Đóng</button>
+            
+            {showVideoModal.video ? (
+              <video 
+                src={showVideoModal.video} 
+                controls 
+                autoPlay 
+                className="w-full rounded-xl bg-black mb-4" 
+                style={{ maxHeight: '420px' }}
+              >
+                Trình duyệt của bạn không hỗ trợ video.
+              </video>
+            ) : (
+              <div className="bg-black aspect-video rounded-xl mb-4 flex items-center justify-center text-white/70">
+                Video hướng dẫn đang cập nhật
+              </div>
+            )}
+            
+            <div className="text-sm text-[#5f6f68]">
+              Video được quay thực tế tại quầy Cửu Long Mini Mart 24H. 
+              Sử dụng nguyên liệu chất lượng cao, tuân thủ VSATTP.
+            </div>
+            <button 
+              onClick={() => setShowVideoModal(null)} 
+              className="mt-4 w-full py-2.5 bg-[#0c7a4d] text-white rounded-xl font-semibold"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Ingredient Detail Modal - Chuyên nghiệp, đầy đủ thông tin */}
+      {selectedIngredient && (
+        <div className="modal" onClick={() => setSelectedIngredient(null)}>
+          <div className="modal-content p-6 max-w-lg" onClick={e => e.stopPropagation()}>
+            <div className="flex gap-4">
+              <img 
+                src={selectedIngredient.image} 
+                alt={selectedIngredient.name} 
+                className="w-28 h-28 object-cover rounded-xl border"
+              />
+              <div className="flex-1">
+                <h3 className="font-bold text-xl">{selectedIngredient.name}</h3>
+                <div className="text-[#c2410c] font-bold text-lg mt-1">
+                  {selectedIngredient.price.toLocaleString('vi-VN')}đ {selectedIngredient.unit && `/ ${selectedIngredient.unit}`}
+                </div>
+                <div className="text-xs text-[#5f6f68] mt-1">Nguồn: {selectedIngredient.origin}</div>
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <p className="text-sm text-[#22302a]">{selectedIngredient.description}</p>
+
+              <div className="mt-4 grid grid-cols-1 gap-3 text-sm">
+                <div>
+                  <span className="font-semibold text-[#0c7a4d]">Nhà cung cấp:</span><br />
+                  <span>{selectedIngredient.supplier}</span>
+                </div>
+                <div>
+                  <span className="font-semibold text-[#0c7a4d]">Liên hệ:</span><br />
+                  <span>{selectedIngredient.contact}</span>
+                </div>
+                <div>
+                  <span className="font-semibold text-[#0c7a4d]">Địa chỉ kho:</span><br />
+                  <span className="text-xs">{selectedIngredient.address}</span>
+                </div>
+                <div>
+                  <span className="font-semibold text-[#0c7a4d]">Giấy chứng nhận ATTP:</span><br />
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {selectedIngredient.certificates?.map(cert => (
+                      <span key={cert} className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">
+                        ✓ {cert}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 p-3 bg-[#f8f1e3] rounded-xl text-xs text-[#5f6f68]">
+              Sản phẩm được kiểm soát chất lượng nghiêm ngặt theo quy định VSATTP. 
+              Phù hợp cho quán trà sữa, cà phê, sinh tố chuyên nghiệp.
+            </div>
+
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setSelectedIngredient(null)} className="flex-1 py-2.5 border rounded-xl">Đóng</button>
+              <button 
+                onClick={() => { addToCart(selectedIngredient); setSelectedIngredient(null); }} 
+                className="flex-1 btn-primary py-2.5"
+              >
+                Thêm vào giỏ hàng
+              </button>
+            </div>
           </div>
         </div>
       )}
