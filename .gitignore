@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Built site for GitHub Pages (docs/) is committed on purpose
+# so Settings → Pages → Branch: main /docs works without Actions.
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
