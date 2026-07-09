@@ -3,38 +3,60 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main, master ]
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
-      - run: npm run build
+
+      - name: Install & build
+        env:
+          # vite.config.ts sets base to /MrHai1992/ when GITHUB_ACTIONS=true
+          GITHUB_ACTIONS: 'true'
+        run: |
+          npm ci
+          npm run build
+
+      # Primary: GitHub Actions Pages (Settings → Pages → Source = GitHub Actions)
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
-  deploy:
+      # Fallback: publish built site to gh-pages branch
+      # (Settings → Pages → Source = Deploy from branch → gh-pages / root)
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
+          cname: ''
+
+  deploy-actions-pages:
+    needs: build-and-deploy
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
