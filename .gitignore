@@ -8,9 +8,14 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+# dist is built in CI / Render; keep ignored (do not commit large videos)
 dist
 dist-ssr
 *.local
+s-out.txt
+s-err.txt
+serve-out.txt
+serve-err.txt
 
 # Built site for GitHub Pages (docs/) is committed on purpose
 # so Settings → Pages → Branch: main /docs works without Actions.

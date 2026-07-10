@@ -1,55 +1,80 @@
-# Render deploy fix (exit 127)
+# Hết lỗi Render exit 127 (chắc chắn)
 
-`Exited with status 127` = **command not found**.  
-Với site Vite/React, **đúng sản phẩm trên Render là Static Site**, không phải Web Service chạy `vite`/`npm start` sai runtime.
+## Chẩn đoán
 
-## Cách A — KHUYẾN NGHỊ: Static Site (hết lỗi 127)
+Thông báo:
 
-Service Web cũ (`srv-d98ih0...`) đang là **Web Service** → luôn cần Start Command.  
-Hãy **tạo service mới**:
+> Exited with status 127 while **running your code**
 
-1. Dashboard → **New +** → **Static Site**
-2. Connect repo: `mrbit4578/MrHai1992`, branch `main`
-3. Settings:
+chỉ xảy ra với **Web Service** (có process start).  
+**Static Site không có bước “running your code”** → không thể ra lỗi này.
 
-| Field | Value |
-|-------|--------|
-| Build Command | `npm install && npm run build` |
-| Publish Directory | `dist` |
-| Node version / `NODE_VERSION` | `20` |
+Service hiện tại `srv-d98ih0etrd3s73eo8uv0` là **Web Service**.  
+Cứ bấm Deploy lại commit mới **mà không đổi loại service / Start Command** thì **vẫn 127**.
 
-4. Create Static Site → đợi deploy xanh.
-5. (Tuỳ chọn) Xóa / suspend Web Service cũ để tránh nhầm.
+`127` = shell không tìm thấy lệnh (thường `node` hoặc `vite` không có trong PATH / runtime sai).
 
-Không có Start Command → **không còn exit 127 lúc “running your code”**.
+---
 
-## Cách B — Giữ Web Service cũ (nếu bắt buộc)
+## Cách duy nhất được khuyến nghị: Static Site MỚI
 
-Vào **Settings** của `srv-d98ih0...` và set **chính xác**:
+1. Mở https://dashboard.render.com  
+2. **New +** → **Static Site**  ← không chọn Web Service  
+3. Connect GitHub repo **`mrbit4578/MrHai1992`**, branch **`main`**  
+4. Điền:
 
 | Field | Value |
 |-------|--------|
-| Runtime / Environment | **Node** (không phải Python/Docker trừ khi bạn chủ động dùng Dockerfile) |
-| Build Command | `npm install && npm run build` |
-| Start Command | `node server.mjs` |
-| `NODE_VERSION` | `20` |
-| Root Directory | *(để trống)* |
+| Name | `mrhai1992` (tên mới) |
+| Branch | `main` |
+| **Build Command** | `npm install && npm run build` |
+| **Publish Directory** | `dist` |
 
-Rồi: **Manual Deploy → Clear build cache & deploy**.
+5. Environment → Add: `NODE_VERSION` = `20`  
+6. **Create Static Site**  
+7. Vào service Web cũ `srv-d98ih0...` → Settings → **Suspend** hoặc **Delete**
 
-Health check: `/health`
+### Không làm
 
-## Không dùng
+- Không “Manual Deploy” lại service Web cũ rồi mong hết 127  
+- Không dùng Start Command `vite` / `npm run dev` / `npm run preview`
 
-- `vite` / `npm run dev` / `npm run preview` làm Start Command  
-- Runtime Python  
-- Start Command trống trên Web Service  
+---
 
-## Verify local
+## Nếu nhất định giữ Web Service cũ
+
+Settings của `srv-d98ih0...` phải **copy đúng từng ký tự**:
+
+| Field | Value |
+|-------|--------|
+| **Language / Environment** | `Node` |
+| **Build Command** | `npm install && npm run build` |
+| **Start Command** | `node server.cjs` |
+| **NODE_VERSION** | `20` |
+| Root Directory | *(trống)* |
+
+Sau đó: **Manual Deploy → Clear build cache & deploy**.
+
+Health: `https://<host>/health` → body `ok`
+
+Hoặc đổi Environment sang **Docker**, Docker Command **để trống** (dùng `CMD` trong Dockerfile).
+
+---
+
+## Site backup (đã có sẵn)
+
+GitHub Pages (không phụ thuộc Render):
+
+https://mrbit4578.github.io/MrHai1992/
+
+---
+
+## Kiểm tra local
 
 ```bash
 npm install
 npm run build
-node server.mjs
-# http://localhost:3000  and  /health
+node server.cjs
+# open http://localhost:3000
+# open http://localhost:3000/health
 ```

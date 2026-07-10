@@ -1,17 +1,17 @@
 {
   "name": "phache-cuulong",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "engines": {
-    "node": ">=20 <25"
+    "node": ">=18"
   },
   "scripts": {
     "dev": "node ./node_modules/vite/bin/vite.js",
     "build": "node ./node_modules/vite/bin/vite.js build",
     "lint": "oxlint",
     "preview": "node ./node_modules/vite/bin/vite.js preview --host 0.0.0.0 --port 4173",
-    "start": "node server.mjs",
+    "start": "node server.cjs",
     "typecheck": "node ./node_modules/typescript/lib/tsc.js -b",
     "upload": "python scripts/tools/upload-agent.py",
     "deploy:github": "npm run build && echo Build done"

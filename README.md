@@ -31,28 +31,33 @@ npm run preview
 
 ## Deploy Render
 
-**Đọc file `RENDER-FIX.md`** — hướng dẫn hết lỗi `exit 127`.
+**BẮT BUỘC đọc `RENDER-FIX.md`.**
 
-### Khuyến nghị: Static Site (không cần Start Command)
+Lỗi `exit 127 while running your code` chỉ xảy ra với **Web Service**.  
+**Push code mới không sửa được** nếu bạn vẫn Deploy lại service Web cũ.
 
-```
-New → Static Site
-Build Command: npm install && npm run build
-Publish Directory: dist
-NODE_VERSION: 20
-```
-
-### Nếu giữ Web Service
+### Cách đúng (Static Site mới)
 
 ```
-Runtime: Node
-Build: npm install && npm run build
-Start: node server.mjs
-NODE_VERSION: 20
+New +  →  Static Site   (không phải Web Service)
+Build Command:      npm install && npm run build
+Publish Directory:  dist
+NODE_VERSION:       20
 ```
 
-> Web Service cũ bị 127 gần như chắc do Start Command / runtime sai  
-> (không phải do thiếu file trên GitHub — `server.mjs` đã có trên `main`).
+Rồi **Suspend/Delete** service Web cũ `srv-d98ih0...`.
+
+### Web Service (không khuyến nghị)
+
+```
+Environment: Node
+Build:  npm install && npm run build
+Start:  node server.cjs
+```
+
+### Đang live không cần Render
+
+https://mrbit4578.github.io/MrHai1992/
 
 ## Deploy GitHub Pages (tự động)
 
