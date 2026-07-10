@@ -1,15 +1,27 @@
-# ONE service only — Static Site (no start process → no exit 127)
 services:
+  # Static Site — recommended (no process → no exit 127)
   - type: web
     name: mrhai1992
     runtime: static
-    # dist/ is committed — no npm/vite required on Render
-    buildCommand: "echo prebuilt-dist && test -f dist/index.html"
+    buildCommand: "test -f dist/index.html && echo ok"
     staticPublishPath: dist
-    envVars:
-      - key: NODE_VERSION
-        value: "20"
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+
+  # Node Web Service — Start Command covered by shims + node server.cjs
+  - type: web
+    name: mrhai1992-web
+    runtime: node
+    plan: free
+    buildCommand: npm install && RENDER=true npm run build
+    startCommand: node server.cjs
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: HOST
+        value: 0.0.0.0
+      - key: RENDER
+        value: "true"

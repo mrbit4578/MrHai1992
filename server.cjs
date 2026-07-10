@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-/* Production static server — CommonJS only (Render-safe). */
+/* Production static server — CommonJS (no shebang: avoids /usr/bin/env 127). */
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -24,12 +23,11 @@ const MIME = {
   ".woff": "font/woff",
   ".woff2": "font/woff2",
   ".map": "application/json",
-  ".txt": "text/plain; charset=utf-8",
-  ".xml": "application/xml"
+  ".txt": "text/plain; charset=utf-8"
 };
 
 function send(res, code, body, type) {
-  const buf = Buffer.from(body);
+  const buf = Buffer.from(String(body));
   res.writeHead(code, {
     "content-type": type || "text/plain; charset=utf-8",
     "content-length": buf.length
@@ -56,8 +54,7 @@ const helpHtml = `<!doctype html><html lang="vi"><head><meta charset="utf-8"/><m
 <body style="font-family:system-ui,sans-serif;max-width:40rem;margin:2rem auto;padding:0 1rem;line-height:1.5">
 <h1>MrHai1992 server is up</h1>
 <p>Node ${process.version} · ${host}:${port}</p>
-<p><code>dist/</code> chưa có trên host này. Nếu bạn thấy trang này, Start Command đã đúng.</p>
-<p>Hãy dùng <b>Static Site</b> (Publish Directory = <code>dist</code>) hoặc đảm bảo Build Command tạo ra <code>dist</code>.</p>
+<p><code>dist/</code> missing — upload/build dist or use Static Site publish dir.</p>
 </body></html>`;
 
 const server = http.createServer((req, res) => {
@@ -66,7 +63,6 @@ const server = http.createServer((req, res) => {
     if (url === "/health" || url.startsWith("/health?")) {
       return send(res, 200, "ok");
     }
-
     if (!fs.existsSync(dist)) {
       return send(res, 200, helpHtml, "text/html; charset=utf-8");
     }
@@ -83,7 +79,6 @@ const server = http.createServer((req, res) => {
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
       return sendFile(res, filePath);
     }
-
     const indexPath = path.join(dist, "index.html");
     if (fs.existsSync(indexPath)) return sendFile(res, indexPath);
     return send(res, 404, "not found");
@@ -94,10 +89,8 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`[server.cjs] listening http://${host}:${port}`);
-  console.log(`[server.cjs] node=${process.version}`);
-  console.log(`[server.cjs] dist exists=${fs.existsSync(dist)} path=${dist}`);
-  console.log(`[server.cjs] cwd=${process.cwd()}`);
+  console.log(`[server.cjs] http://${host}:${port} node=${process.version}`);
+  console.log(`[server.cjs] dist=${dist} exists=${fs.existsSync(dist)}`);
 });
 
 function shutdown(sig) {

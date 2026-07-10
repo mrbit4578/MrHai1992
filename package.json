@@ -1,7 +1,7 @@
 {
   "name": "phache-cuulong",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "engines": {
     "node": ">=18"
@@ -13,7 +13,8 @@
     "start": "node server.cjs",
     "preview": "node server.cjs",
     "serve": "node server.cjs",
-    "web": "node server.cjs"
+    "web": "node server.cjs",
+    "postinstall": "node scripts/render-shims.cjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",
