@@ -31,24 +31,24 @@ npm run preview
 
 ## Deploy Render (Web Service)
 
-Lỗi `Exited with status 127` thường do:
-- không có script `start`, hoặc
-- `vite` nằm trong `devDependencies` nên bị bỏ khi `NODE_ENV=production`.
+Lỗi `Exited with status 127` = **command not found** (thường `vite` / `serve` không có trong PATH).
 
-Repo đã fix:
-- `npm start` → `serve -s dist` (static SPA)
-- `vite` / `typescript` chuyển sang `dependencies` để build trên Render ổn định
+Repo đã fix cứng:
 
-Trên dashboard Render service:
+| Field | Value **bắt buộc** trên dashboard |
+|-------|-----------------------------------|
+| Runtime | **Node** |
+| Build Command | `npm install --include=dev && npm run build` |
+| Start Command | `node scripts/static-server.mjs` |
+| Node version | **20** |
 
-| Field | Value |
-|-------|--------|
-| Runtime | Node |
-| Build Command | `npm ci && npm run build` |
-| Start Command | `npm start` |
-| Node version | 20 |
+`start` dùng static server **thuần Node** (`scripts/static-server.mjs`), không gọi `vite`/`serve` lúc runtime.
 
-Hoặc dùng Blueprint từ `render.yaml`.
+**Quan trọng:** trong Render → Settings, ghi đè Start Command đúng như trên (không để `vite`, `npm run dev`, hay để trống).
+
+Sau khi push, bấm **Manual Deploy → Clear build cache & deploy**.
+
+Health: `https://<service>.onrender.com/health`
 
 > Repo **Trade-2026** (coin trade agent) là project khác.  
 > Repo này **MrHai1992** là website Cửu Long Pha Chế (Vite/React).

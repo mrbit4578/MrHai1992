@@ -3,11 +3,14 @@ services:
     name: mrhai1992
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run build
-    startCommand: npm start
-    healthCheckPath: /
+    # Explicit node paths — avoids "command not found" (exit 127)
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: node scripts/static-server.mjs
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
         value: "20"
+      - key: HOST
+        value: 0.0.0.0
