@@ -1,9 +1,5 @@
-/* eslint-disable no-console */
-/**
- * CommonJS production server — maximum Render compatibility.
- * Start command (copy exactly):
- *   node server.cjs
- */
+#!/usr/bin/env node
+/* Production static server — CommonJS only (Render-safe). */
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -28,16 +24,17 @@ const MIME = {
   ".woff": "font/woff",
   ".woff2": "font/woff2",
   ".map": "application/json",
-  ".txt": "text/plain; charset=utf-8"
+  ".txt": "text/plain; charset=utf-8",
+  ".xml": "application/xml"
 };
 
 function send(res, code, body, type) {
-  const data = Buffer.from(body);
+  const buf = Buffer.from(body);
   res.writeHead(code, {
     "content-type": type || "text/plain; charset=utf-8",
-    "content-length": data.length
+    "content-length": buf.length
   });
-  res.end(data);
+  res.end(buf);
 }
 
 function sendFile(res, filePath) {
@@ -47,23 +44,20 @@ function sendFile(res, filePath) {
     "content-type": type,
     "cache-control": ext === ".html" ? "no-cache" : "public, max-age=86400"
   });
-  fs.createReadStream(filePath).on("error", () => {
-    if (!res.headersSent) send(res, 500, "read error");
-    else res.destroy();
-  }).pipe(res);
+  fs.createReadStream(filePath)
+    .on("error", () => {
+      if (!res.headersSent) send(res, 500, "read error");
+      else res.destroy();
+    })
+    .pipe(res);
 }
 
-const fallbackHtml = `<!doctype html><html><head><meta charset="utf-8"><title>MrHai1992</title></head>
-<body style="font-family:sans-serif;max-width:720px;margin:40px auto;padding:0 16px">
-<h1>MrHai1992 is running</h1>
-<p>Node ${process.version} · port ${port}</p>
-<p><b>dist/</b> is missing on this host. Build step may have failed, or use Static Site with publish dir <code>dist</code>.</p>
-<ol>
-<li>Render → New → <b>Static Site</b></li>
-<li>Build: <code>npm install && npm run build</code></li>
-<li>Publish: <code>dist</code></li>
-</ol>
-<p>Or Web Service Start Command must be exactly: <code>node server.cjs</code> with Environment <b>Node</b>.</p>
+const helpHtml = `<!doctype html><html lang="vi"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>MrHai1992</title></head>
+<body style="font-family:system-ui,sans-serif;max-width:40rem;margin:2rem auto;padding:0 1rem;line-height:1.5">
+<h1>MrHai1992 server is up</h1>
+<p>Node ${process.version} · ${host}:${port}</p>
+<p><code>dist/</code> chưa có trên host này. Nếu bạn thấy trang này, Start Command đã đúng.</p>
+<p>Hãy dùng <b>Static Site</b> (Publish Directory = <code>dist</code>) hoặc đảm bảo Build Command tạo ra <code>dist</code>.</p>
 </body></html>`;
 
 const server = http.createServer((req, res) => {
@@ -74,10 +68,10 @@ const server = http.createServer((req, res) => {
     }
 
     if (!fs.existsSync(dist)) {
-      return send(res, 200, fallbackHtml, "text/html; charset=utf-8");
+      return send(res, 200, helpHtml, "text/html; charset=utf-8");
     }
 
-    let rel = decodeURIComponent(url.split("?")[0].split("#")[0]);
+    let rel = decodeURIComponent(url.split("?")[0].split("#")[0] || "/");
     if (rel === "/") rel = "/index.html";
     rel = path.normalize(rel).replace(/^(\.\.(\/|\\|$))+/, "");
     let filePath = path.join(dist, rel);
@@ -89,19 +83,27 @@ const server = http.createServer((req, res) => {
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
       return sendFile(res, filePath);
     }
+
     const indexPath = path.join(dist, "index.html");
     if (fs.existsSync(indexPath)) return sendFile(res, indexPath);
     return send(res, 404, "not found");
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     return send(res, 500, "error");
   }
 });
 
 server.listen(port, host, () => {
-  console.log(`[server.cjs] node=${process.version} http://${host}:${port}`);
-  console.log(`[server.cjs] dist=${dist} exists=${fs.existsSync(dist)}`);
+  console.log(`[server.cjs] listening http://${host}:${port}`);
+  console.log(`[server.cjs] node=${process.version}`);
+  console.log(`[server.cjs] dist exists=${fs.existsSync(dist)} path=${dist}`);
+  console.log(`[server.cjs] cwd=${process.cwd()}`);
 });
 
-process.on("SIGTERM", () => server.close(() => process.exit(0)));
-process.on("SIGINT", () => server.close(() => process.exit(0)));
+function shutdown(sig) {
+  console.log(`[server.cjs] ${sig}`);
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 2000).unref();
+}
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

@@ -1,0 +1,8 @@
+node_modules
+.git
+.github
+*.log
+s-out.txt
+s-err.txt
+serve-out.txt
+serve-err.txt

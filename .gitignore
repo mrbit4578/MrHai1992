@@ -8,8 +8,6 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-# dist is built in CI / Render; keep ignored (do not commit large videos)
-dist
 dist-ssr
 *.local
 s-out.txt
@@ -17,10 +15,10 @@ s-err.txt
 serve-out.txt
 serve-err.txt
 
-# Built site for GitHub Pages (docs/) is committed on purpose
-# so Settings → Pages → Branch: main /docs works without Actions.
+# NOTE: dist/ is committed on purpose so Render can start even if vite build is skipped.
+# Rebuild locally with `npm run build` before release commits when UI changes.
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea

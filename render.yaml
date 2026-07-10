@@ -1,13 +1,11 @@
-# IMPORTANT:
-# Pushing this file does NOT convert an existing Web Service into a Static Site.
-# You must create a NEW Static Site in the dashboard (see RENDER-FIX.md).
-
+# Blueprint for NEW services. Existing Web Services do not auto-change type.
 services:
+  # Preferred: no start process → cannot hit exit 127 at runtime
   - type: web
-    name: mrhai1992-static
+    name: mrhai1992
     runtime: static
     buildCommand: npm install && npm run build
-    staticPublishPath: dist
+    staticPublishPath: ./dist
     envVars:
       - key: NODE_VERSION
         value: "20"
@@ -16,9 +14,9 @@ services:
         source: /*
         destination: /index.html
 
-  # Optional second service if you insist on a process server:
+  # Fallback Web Service (Node) if you need a process
   - type: web
-    name: mrhai1992-node
+    name: mrhai1992-web
     runtime: node
     plan: free
     buildCommand: npm install && npm run build

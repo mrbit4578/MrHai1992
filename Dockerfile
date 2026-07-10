@@ -2,7 +2,8 @@ FROM node:20-bookworm-slim
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+# Install all deps (vite is in dependencies). Skip lifecycle first, then build once.
+RUN npm install --ignore-scripts
 
 COPY . .
 RUN npm run build
@@ -12,5 +13,4 @@ ENV HOST=0.0.0.0
 ENV PORT=10000
 EXPOSE 10000
 
-# Exec form — no shell, so no "command not found" from missing sh tools
 CMD ["node", "server.cjs"]
