@@ -1,71 +1,85 @@
-# Render exit 127 — fix dứt điểm
+# Hết lỗi Deploy / exit 127 trên Render
 
-## 1) Chẩn đoán 1 câu
+## Vì sao fail mãi
 
-`Exited with status 127 while running your code` = **Web Service** đang chạy Start Command mà **không tìm thấy lệnh** (`node`, `vite`, `yarn`, …).
+Service dạng URL:
 
-Service cũ dạng:
+`https://dashboard.render.com/web/srv-XXXX`
 
-`https://dashboard.render.com/web/srv-...`
+là **Web Service**. Nó **luôn** chạy **Start Command**.
 
-là **Web Service**, không phải Static Site.
+`exit 127` = lệnh start **không tồn tại** trong runtime  
+(ví dụ Start = `vite` / `yarn` / sai Language).
 
-Push code **không đổi** Start Command đã lưu trên dashboard.
+**Push code không sửa ô Start Command** đã lưu trên dashboard.
 
----
-
-## 2) Cách A — Static Site (khuyến nghị, hết 127)
-
-1. **New + → Static Site** (đừng bấm Deploy service Web cũ)
-2. Repo `mrbit4578/MrHai1992`, branch `main`
-3. 
-
-| Field | Value |
-|-------|--------|
-| Build Command | `npm install && npm run build` |
-| Publish Directory | `dist` |
-| NODE_VERSION | `20` |
-
-4. Create → đợi xanh
-5. Suspend/Delete Web Service cũ
+Repo local/CI đã build OK. Lỗi nằm ở **cấu hình service**.
 
 ---
 
-## 3) Cách B — Sửa Web Service cũ (nếu bắt buộc)
+## Cách chắc chắn 100% (làm đúng 1 lần)
 
-Vào **Settings** service `srv-d98ih0...` và **ghi đè**:
+### Bước 1 — Tạo Static Site MỚI
+
+1. Mở https://dashboard.render.com  
+2. Bấm **New +**  
+3. Chọn **Static Site** ← không chọn Web Service  
+4. Connect repo **`mrbit4578/MrHai1992`**, branch **`main`**  
+5. Điền **chính xác**:
 
 | Field | Value |
 |-------|--------|
-| Environment | **Node** (hoặc **Docker** + Dockerfile) |
-| Build Command | `npm install && npm run build` |
+| Name | `mrhai1992` (tên mới, khác service cũ) |
+| Branch | `main` |
+| **Build Command** | `echo prebuilt-dist` |
+| **Publish Directory** | `dist` |
+
+6. Environment Variables (optional): `NODE_VERSION` = `20`  
+7. **Create Static Site**  
+8. Vào Web Service cũ `srv-d98ih0...` → **Settings → Suspend Service** (hoặc Delete)
+
+`dist/` đã commit sẵn → **không cần npm/vite trên Render**.
+
+### Bước 2 — (Blueprint, tùy chọn)
+
+https://dashboard.render.com/select-repo?type=static  
+
+hoặc **New → Blueprint** trỏ repo này (`render.yaml`).
+
+---
+
+## Nếu vẫn muốn Web Service cũ
+
+**Settings** của `srv-d98ih0...`:
+
+| Field | Value |
+|-------|--------|
+| Language | **Node** |
+| Build Command | `echo prebuilt-dist` |
 | **Start Command** | `node server.cjs` |
-| NODE_VERSION | `20` |
-| Root Directory | *(trống)* |
+| Health Check Path | `/health` |
 
-Sau đó: **Manual Deploy → Clear build cache & deploy**
-
-### Nếu chọn Docker
+Hoặc:
 
 | Field | Value |
 |-------|--------|
-| Environment | Docker |
-| Dockerfile Path | `Dockerfile` |
-| Docker Command | *(để trống — dùng CMD)* |
+| Language | **Docker** |
+| Dockerfile Path | `./Dockerfile` |
+| Docker Command | *(để trống)* |
+
+Rồi **Clear build cache & deploy**.
 
 ---
 
-## 4) Repo đã làm gì để ổn định
-
-- `server.cjs` — server CommonJS, luôn listen
-- `scripts/build.cjs` — build vite; nếu fail mà có `dist/` prebuilt thì **vẫn pass**
-- `postinstall` — tự build sau `npm install`
-- `dist/` **được commit** (fallback)
-- `Procfile` / `package.json start` → `node server.cjs`
-- Đã xóa `nixpacks.toml` (cấu hình nix sai dễ gây 127)
-
----
-
-## 5) Backup không cần Render
+## Backup không cần Render (đã live)
 
 https://mrbit4578.github.io/MrHai1992/
+
+---
+
+## Checklist khi vẫn đỏ
+
+- [ ] Có đang Deploy **Web** service cũ không? → đổi sang Static Site  
+- [ ] Start Command có phải đúng `node server.cjs` không?  
+- [ ] Language có phải **Node** (hoặc Docker) không — không phải Python  
+- [ ] Root Directory có để **trống** không  

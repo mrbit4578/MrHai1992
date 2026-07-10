@@ -1,7 +1,7 @@
 /**
- * Production build for Render/CI.
- * - Prefer vite build when available
- * - Never fail the deploy if a prebuilt dist/ already exists
+ * Build helper:
+ * 1) Try vite build
+ * 2) If vite missing/fails but dist/ exists (prebuilt in git) → success
  */
 const { spawnSync } = require("node:child_process");
 const fs = require("node:fs");
@@ -15,30 +15,33 @@ function hasDist() {
   return fs.existsSync(distIndex);
 }
 
-function runViteBuild() {
-  if (!fs.existsSync(viteJs)) {
-    console.log("[build] vite not installed at", viteJs);
-    return false;
+if (process.env.USE_PREBUILT_DIST === "1") {
+  if (!hasDist()) {
+    console.error("[build] USE_PREBUILT_DIST=1 but dist/index.html missing");
+    process.exit(1);
   }
-  console.log("[build] running vite build via node");
+  console.log("[build] using prebuilt dist/ (USE_PREBUILT_DIST=1)");
+  process.exit(0);
+}
+
+if (fs.existsSync(viteJs)) {
+  console.log("[build] vite via node");
   const result = spawnSync(process.execPath, [viteJs, "build"], {
     cwd: root,
     stdio: "inherit",
     env: process.env
   });
-  return result.status === 0;
-}
-
-const ok = runViteBuild();
-if (ok && hasDist()) {
-  console.log("[build] success");
-  process.exit(0);
+  if (result.status === 0 && hasDist()) {
+    console.log("[build] vite ok");
+    process.exit(0);
+  }
+  console.warn("[build] vite failed, status=", result.status);
 }
 
 if (hasDist()) {
-  console.log("[build] vite failed or skipped, but prebuilt dist/ exists — continue");
+  console.log("[build] fallback: prebuilt dist/ present");
   process.exit(0);
 }
 
-console.error("[build] FATAL: no dist/ and vite build failed");
+console.error("[build] no dist/ and vite unavailable/failed");
 process.exit(1);

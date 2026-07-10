@@ -1,16 +1,10 @@
-FROM node:20-bookworm-slim
+# Optional: Docker Web Service — only needs committed dist/ + server.cjs
+FROM node:20-alpine
 WORKDIR /app
-
-COPY package.json package-lock.json ./
-# Install all deps (vite is in dependencies). Skip lifecycle first, then build once.
-RUN npm install --ignore-scripts
-
-COPY . .
-RUN npm run build
-
+COPY server.cjs ./
+COPY dist ./dist
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=10000
 EXPOSE 10000
-
 CMD ["node", "server.cjs"]

@@ -1,11 +1,11 @@
-# Blueprint for NEW services. Existing Web Services do not auto-change type.
+# ONE service only — Static Site (no start process → no exit 127)
 services:
-  # Preferred: no start process → cannot hit exit 127 at runtime
   - type: web
     name: mrhai1992
     runtime: static
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    # dist/ is committed — no npm/vite required on Render
+    buildCommand: "echo prebuilt-dist && test -f dist/index.html"
+    staticPublishPath: dist
     envVars:
       - key: NODE_VERSION
         value: "20"
@@ -13,17 +13,3 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
-
-  # Fallback Web Service (Node) if you need a process
-  - type: web
-    name: mrhai1992-web
-    runtime: node
-    plan: free
-    buildCommand: npm install && npm run build
-    startCommand: node server.cjs
-    healthCheckPath: /health
-    envVars:
-      - key: NODE_VERSION
-        value: "20"
-      - key: HOST
-        value: 0.0.0.0

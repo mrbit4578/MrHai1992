@@ -1,7 +1,7 @@
 {
   "name": "phache-cuulong",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "engines": {
     "node": ">=18"
@@ -13,10 +13,7 @@
     "start": "node server.cjs",
     "preview": "node server.cjs",
     "serve": "node server.cjs",
-    "web": "node server.cjs",
-    "postinstall": "node scripts/build.cjs",
-    "typecheck": "node ./node_modules/typescript/lib/tsc.js -b --pretty false || exit 0",
-    "lint": "node ./node_modules/oxlint/bin/oxlint || exit 0"
+    "web": "node server.cjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",

@@ -1,43 +1,28 @@
-# Cửu Long Pha Chế — Website bán đồ uống & nguyên liệu
+# Cửu Long Pha Chế
 
-**Repo:** https://github.com/mrbit4578/MrHai1992  
-**GitHub Pages:** https://mrbit4578.github.io/MrHai1992/
+Website bán đồ uống & nguyên liệu (React + Vite + Tailwind).
 
-Stack: React + Vite + Tailwind.
+- **GitHub:** https://github.com/mrbit4578/MrHai1992  
+- **Pages (live):** https://mrbit4578.github.io/MrHai1992/  
+- **Render:** xem [RENDER-FIX.md](./RENDER-FIX.md)
 
 ## Local
 
 ```bash
 npm install
-npm run dev
-# http://localhost:5173
-```
-
-```bash
+npm run dev      # http://localhost:5173
 npm run build
-npm start
-# http://localhost:3000  +  /health
+npm start        # node server.cjs → http://localhost:3000
 ```
 
-## Deploy Render (đọc kỹ)
+## Render (tóm tắt)
 
-Chi tiết: **[RENDER-FIX.md](./RENDER-FIX.md)**
+Site tĩnh đã build sẵn trong `dist/`.
 
-### Quan trọng về lỗi `exit 127`
+**Đúng:** New → **Static Site**  
+- Build: `echo prebuilt-dist`  
+- Publish: `dist`
 
-Lỗi này đến từ **Start Command / runtime trên Web Service**, không phải do thiếu file trong git.
-**Cách chắc chắn:** tạo **Static Site mới** (Publish = `dist`), đừng Deploy lại Web Service cũ nếu Start Command vẫn sai.
+**Sai:** Deploy lại Web Service với Start Command `vite` / trống → `exit 127`.
 
-| Static Site | Web Service |
-|-------------|-------------|
-| Build: `npm install && npm run build` | Build: `npm install && npm run build` |
-| Publish: `dist` | Start: **`node server.cjs`** |
-| NODE_VERSION=20 | Environment=**Node**, NODE_VERSION=20 |
-
-## Scripts
-
-| Script | Việc |
-|--------|------|
-| `npm run dev` | Vite dev |
-| `npm run build` | Vite build (fallback prebuilt `dist/`) |
-| `npm start` | `node server.cjs` production server |
+Nếu giữ Web Service: Start Command **bắt buộc** = `node server.cjs` (Language = Node).
