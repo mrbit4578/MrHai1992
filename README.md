@@ -29,6 +29,30 @@ npm run build
 npm run preview
 ```
 
+## Deploy Render (Web Service)
+
+Lỗi `Exited with status 127` thường do:
+- không có script `start`, hoặc
+- `vite` nằm trong `devDependencies` nên bị bỏ khi `NODE_ENV=production`.
+
+Repo đã fix:
+- `npm start` → `serve -s dist` (static SPA)
+- `vite` / `typescript` chuyển sang `dependencies` để build trên Render ổn định
+
+Trên dashboard Render service:
+
+| Field | Value |
+|-------|--------|
+| Runtime | Node |
+| Build Command | `npm ci && npm run build` |
+| Start Command | `npm start` |
+| Node version | 20 |
+
+Hoặc dùng Blueprint từ `render.yaml`.
+
+> Repo **Trade-2026** (coin trade agent) là project khác.  
+> Repo này **MrHai1992** là website Cửu Long Pha Chế (Vite/React).
+
 ## Deploy GitHub Pages (tự động)
 
 Mỗi lần push `main` hoặc `master`, workflow `.github/workflows/pages.yml` sẽ:

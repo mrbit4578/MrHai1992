@@ -3,29 +3,34 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "start": "node scripts/serve-prod.mjs",
     "upload": "python scripts/upload-agent.py",
     "deploy:github": "npm run build && echo 'Build xong. Dùng scripts/upload-agent.py hoặc push thủ công'"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",
+    "@vitejs/plugin-react": "^6.0.3",
     "lucide-react": "^1.23.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "serve": "^14.2.4",
     "sonner": "^2.0.7",
-    "tailwindcss": "^4.3.2"
+    "tailwindcss": "^4.3.2",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1"
   },
   "devDependencies": {
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
-    "oxlint": "^1.71.0",
-    "typescript": "~6.0.2",
-    "vite": "^8.1.1"
+    "oxlint": "^1.71.0"
   }
 }

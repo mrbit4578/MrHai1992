@@ -8,11 +8,17 @@ const isPages = process.env.GITHUB_ACTIONS === 'true'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages needs /MrHai1992/; Render/Vercel/local use root /
   base: isPages ? '/MrHai1992/' : '/',
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,
-    host: true,        // Cho phép truy cập từ localhost và network
-    open: true,        // Tự động mở trình duyệt khi chạy
+    host: true,
+    open: true,
+  },
+  preview: {
+    host: true,
+    port: Number(process.env.PORT) || 4173,
+    allowedHosts: true,
   },
 })
