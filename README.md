@@ -29,29 +29,30 @@ npm run build
 npm run preview
 ```
 
-## Deploy Render (Web Service)
+## Deploy Render
 
-Lỗi `Exited with status 127` = **command not found** (thường `vite` / `serve` không có trong PATH).
+**Đọc file `RENDER-FIX.md`** — hướng dẫn hết lỗi `exit 127`.
 
-Repo đã fix cứng:
+### Khuyến nghị: Static Site (không cần Start Command)
 
-| Field | Value **bắt buộc** trên dashboard |
-|-------|-----------------------------------|
-| Runtime | **Node** |
-| Build Command | `npm install --include=dev && npm run build` |
-| Start Command | `node scripts/static-server.mjs` |
-| Node version | **20** |
+```
+New → Static Site
+Build Command: npm install && npm run build
+Publish Directory: dist
+NODE_VERSION: 20
+```
 
-`start` dùng static server **thuần Node** (`scripts/static-server.mjs`), không gọi `vite`/`serve` lúc runtime.
+### Nếu giữ Web Service
 
-**Quan trọng:** trong Render → Settings, ghi đè Start Command đúng như trên (không để `vite`, `npm run dev`, hay để trống).
+```
+Runtime: Node
+Build: npm install && npm run build
+Start: node server.mjs
+NODE_VERSION: 20
+```
 
-Sau khi push, bấm **Manual Deploy → Clear build cache & deploy**.
-
-Health: `https://<service>.onrender.com/health`
-
-> Repo **Trade-2026** (coin trade agent) là project khác.  
-> Repo này **MrHai1992** là website Cửu Long Pha Chế (Vite/React).
+> Web Service cũ bị 127 gần như chắc do Start Command / runtime sai  
+> (không phải do thiếu file trên GitHub — `server.mjs` đã có trên `main`).
 
 ## Deploy GitHub Pages (tự động)
 

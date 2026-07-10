@@ -1,16 +1,15 @@
+# Preferred: Static Site (no long-running process, no start command → no exit 127)
 services:
   - type: web
     name: mrhai1992
-    runtime: node
-    plan: free
-    # Explicit node paths — avoids "command not found" (exit 127)
-    buildCommand: npm install --include=dev && npm run build
-    startCommand: node scripts/static-server.mjs
-    healthCheckPath: /health
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    pullRequestPreviewsEnabled: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: NODE_VERSION
         value: "20"
-      - key: HOST
-        value: 0.0.0.0
